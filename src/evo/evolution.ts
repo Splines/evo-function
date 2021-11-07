@@ -1,11 +1,11 @@
 import { Int4 } from "../util/bit";
-import { SortedLinkedList } from "../util/list";
+import { Compare, SortedLinkedList } from "../util/list";
 import { getRandomBit, SetCustomEquals } from "../util/util";
 import { BitGeneString } from "./gene";
 import { Problem } from "./problem";
 
-interface ElementWithCost {
-    x: number;
+interface GeneWithCost {
+    gene: BitGeneString;
     cost: number;
 }
 
@@ -18,7 +18,7 @@ export class Evolution {
     private cost: number;
 
     constructor(
-        private descendantsPerGen: number,
+        private descendantsPerGen: number, // also known as λ
         private mutationsPerGen: number,
         private problem: Problem
     ) {
@@ -51,31 +51,45 @@ export class Evolution {
     }
 
     /**
-     * Starts the evolutionary process using probabilistic hill-climbing,
+     * Produce the next generation using probabilistic hill-climbing,
      * i.e. a (1+λ) strategy.
      */
-    public startEvolution() {
+    public nextGeneration() {
+        // --- Procreate (using mutation)
         const children = this.procreate();
-        // const childrenEvaluated: BitGeneString[] = []; // [ best ... worst ]
 
-        const evaluated = new SortedLinkedList(); // [smallest ... biggest]
-        evaluated.insert(this.cost); // parent cost
+        // --- Evaluate
+        const evaluated = new SortedLinkedList<GeneWithCost>({ compareFunc: this.costCompareFunc });
+        evaluated.insert({ gene: this.parent, cost: this.cost }); // parent cost
 
         for (const child of children) {
             const x = child.toInt();
             const cost = this.problem.evaluate(x);
-            evaluated.insert(cost);
+            evaluated.insert({ gene: child, cost: cost }); // insert child (sorted)
         }
+        const evaluatedArray = evaluated.toArray();
+        console.log(evaluatedArray.map((value: GeneWithCost) => {
+            return `🧬: ${value.gene.toString()}, 💰: ${value.cost}`
+        }));
 
-        console.log(evaluated.toArray());
-
+        // --- Choose (1+λ) best for next generation
+        // just slice from the beginning as the array is sorted (due to our SortedLinkedList)
+        return [evaluatedArray.slice(0, this.descendantsPerGen), evaluatedArray];
     }
 
-    // private costCompareFunc(a: ElementWithCost, b: ElementWithCost): Compare {
-    //     if (a.cost === b.cost) {
-    //         return Compare.EQUALS;
-    //     }
-    //     return a.cost < b.cost ? Compare.LESS_THAN : Compare.BIGGER_THAN;
-    // }
+    /**
+     * Starts the evolutionary process.
+     */
+    public startEvolution() {
+        // TODO
+    }
+
+    private costCompareFunc(a: GeneWithCost, b: GeneWithCost): Compare {
+        // from smallest to biggest
+        if (a.cost === b.cost) {
+            return Compare.EQUALS;
+        }
+        return a.cost < b.cost ? Compare.LESS_THAN : Compare.BIGGER_THAN;
+    }
 
 }

@@ -8,15 +8,6 @@ function problemFunc(x: number): number {
 }
 
 const problem = new Problem(problemFunc);
-const evolution = new Evolution(3, 4, problem);
-evolution.startEvolution();
+const evolution = new Evolution(2, 4, problem);
+evolution.nextGeneration();
 
-// const a = new SortedLinkedList();
-// a.insert(5);
-// a.insert(9);
-// a.insert(2);
-// a.insert(6);
-// a.insert(14);
-// a.insert(1);
-// console.log(a.toString());
-// console.log('===========');
