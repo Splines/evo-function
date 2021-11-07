@@ -1,22 +1,19 @@
-class Node {
-    public next: Node | null;
+// adapted from https://github.com/swarup260/Learning_Algorithms/blob/master/data_structure/LinkedList.js
 
-    constructor(public element: number) {
+class Node<T> {
+    public next: Node<T> | null;
+
+    constructor(public element: T) {
         this.next = null;
     }
 }
 
-function defaultEquals(a: number, b: number): boolean {
-    return a === b;
-}
-
-// adapted from https://github.com/swarup260/Learning_Algorithms/blob/master/data_structure/LinkedList.js
-class LinkedList {
+class LinkedList<T> {
 
     private _size: number;
-    private _head: Node | null;
+    private _head: Node<T> | null;
 
-    constructor(private equalFunc = defaultEquals) {
+    constructor(private equalFunc = ((a: T, b: T) => a === b)) {
         this._size = 0;
         this._head = null;
     }
@@ -28,7 +25,7 @@ class LinkedList {
         return this._head;
     }
 
-    push(element: number): void {
+    push(element: T): void {
         const node = new Node(element);
         let current = this._head;
 
@@ -44,7 +41,7 @@ class LinkedList {
         this._size++;
     }
 
-    _getNode(index: number): Node | null {
+    _getNode(index: number): Node<T> | null {
         let node = this._head;
         if (!node || index < 0 || index >= this._size)
             return null;
@@ -55,12 +52,12 @@ class LinkedList {
         return node;
     }
 
-    get(index: number): number | null {
+    get(index: number): T | null {
         const node = this._getNode(index);
         return node ? node.element : null;
     }
 
-    insert(element: number, position: number): void {
+    insert(element: T, position: number): void {
         if (position < 0 || position > this._size) {
             throw new Error('Index error for linked list');
         }
@@ -81,7 +78,8 @@ class LinkedList {
         this._size++;
     }
 
-    indexOf(element: number): number {
+
+    indexOf(element: T): number {
         let current = this._head;
         for (let i = 0; i < this._size && current != null; i++) {
             if (this.equalFunc(current.element, element)) {
@@ -92,7 +90,7 @@ class LinkedList {
         return -1;
     }
 
-    remove(element: number): boolean {
+    remove(element: T): boolean {
         if (this.isEmpty())
             return false;
 
@@ -163,12 +161,7 @@ export enum Compare {
     BIGGER_THAN
 }
 
-function smallerFirstCompare(a: number, b: number): number {
-    if (a === b) {
-        return Compare.EQUALS;
-    }
-    return a < b ? Compare.LESS_THAN : Compare.BIGGER_THAN;
-}
+
 
 function biggerFirstCompare(a: number, b: number): number {
     if (a === b) {
@@ -177,29 +170,36 @@ function biggerFirstCompare(a: number, b: number): number {
     return a < b ? Compare.BIGGER_THAN : Compare.LESS_THAN
 }
 
-export class SortedLinkedList extends LinkedList {
+export class SortedLinkedList<T> extends LinkedList<T> {
 
-    private compareFunc: (a: number, b: number) => Compare;
+    private compareFunc: (a: T, b: T) => Compare;
 
     constructor(
         options?: {
-            customEqualFunc?: (a: number, b: number) => boolean,
-            customCompareFunc?: (a: number, b: number) => Compare
+            eqFunc?: (a: T, b: T) => boolean,
+            compareFunc?: (a: T, b: T) => Compare
         }
     ) {
-        const eqFunc = options?.customEqualFunc || defaultEquals;
+        const eqFunc = options?.eqFunc || ((a, b) => a === b);
         super(eqFunc);
-        this.compareFunc = options?.customCompareFunc || smallerFirstCompare;
+        this.compareFunc = options?.compareFunc || this.smallerFirstCompare;
     }
 
-    insert(element: number, index = 0): void {
+    private smallerFirstCompare(a: T, b: T): number {
+        if (a === b) {
+            return Compare.EQUALS;
+        }
+        return a < b ? Compare.LESS_THAN : Compare.BIGGER_THAN;
+    }
+
+    insert(element: T, index = 0): void {
         if (this.isEmpty())
             return super.insert(element, index);
         const pos = this.getNextSortIndex(element);
         return super.insert(element, pos);
     }
 
-    private getNextSortIndex(element: number): number {
+    private getNextSortIndex(element: T): number {
         let current = this.head;
         let i = 0;
         while (true) {
