@@ -27,7 +27,7 @@ export class BitGeneString implements Equatable {
     }
 
     public toString(): string {
-        return "[" + this.x.toString() + "]";
+        return `[ ${this.x.toString()} ] (int: ${this.toInt()})`;
     }
 
     equals(other: BitGeneString): boolean {
