@@ -1,8 +1,8 @@
-import { Int4 } from "../util/bit";
-import { Compare, SortedLinkedList } from "../util/list";
-import { getRandomBit, SetCustomEquals } from "../util/util";
 import { BitGeneString } from "./gene";
 import { Problem } from "./problem";
+import { Int4 } from "./util/bit";
+import { Compare, SortedLinkedList } from "./util/list";
+import { getRandomBit, SetCustomEquals } from "./util/util";
 
 interface GeneWithCost {
     gene: BitGeneString;

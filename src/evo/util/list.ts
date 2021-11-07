@@ -192,7 +192,7 @@ export class SortedLinkedList<T> extends LinkedList<T> {
         return a < b ? Compare.LESS_THAN : Compare.BIGGER_THAN;
     }
 
-    insert(element: T, index = 0): void {
+    override insert(element: T, index = 0): void {
         if (this.isEmpty())
             return super.insert(element, index);
         const pos = this.getNextSortIndex(element);

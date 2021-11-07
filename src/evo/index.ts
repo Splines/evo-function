@@ -1,5 +1,5 @@
-import { Evolution } from "./evo/evolution";
-import { Problem } from "./evo/problem";
+import { Evolution } from "./evolution";
+import { Problem } from "./problem";
 
 console.log('--- Main ---');
 

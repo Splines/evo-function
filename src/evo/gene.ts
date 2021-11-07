@@ -1,7 +1,5 @@
-import { Int4 } from "../util/bit";
-import { arrayEquals, Equatable, getRandomInt } from "../util/util";
-
-
+import { Int4 } from "./util/bit";
+import { arrayEquals, Equatable, getRandomInt } from "./util/util";
 
 export class BitGeneString implements Equatable {
 
@@ -35,4 +33,3 @@ export class BitGeneString implements Equatable {
     }
 
 }
-
