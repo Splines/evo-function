@@ -4,7 +4,7 @@ import { Int4 } from "./util/bit";
 import { Compare, SortedLinkedList } from "./util/list";
 import { getRandomBit, SetCustomEquals } from "./util/util";
 
-interface GeneWithCost {
+export interface GeneWithCost {
     gene: BitGeneString;
     cost: number;
 }
@@ -14,8 +14,8 @@ interface GeneWithCost {
  */
 export class Evolution {
 
-    private initialParent: BitGeneString;
-    private gen = 0;
+    private generation = -1;
+    private bestChildren: GeneWithCost[] = [];
 
     constructor(
         private descendantsPerGen: number, // also known as λ
@@ -29,11 +29,6 @@ export class Evolution {
         if (mutationsPerGen > 4) {
             throw new Error('As we deal with 4-bit integers, there are only 4 possible bit flip mutations');
         }
-
-        // --- Init gene-string (parent)
-        const initialBits: Int4 = Array(4).fill(null).map(() => getRandomBit()) as Int4;
-        this.initialParent = new BitGeneString(initialBits);
-        console.log(`Initial gene 🧬: ${this.initialParent.toString()}`);
     }
 
     /**
@@ -53,9 +48,9 @@ export class Evolution {
      * Produces the next generation using probabilistic hill-climbing,
      * i.e. a (1+λ) strategy.
      */
-    nextGeneration(parents: BitGeneString[]) {
-        this.gen++;
-        console.log(`--- Producing generation ${this.gen}`);
+    private nextGeneration(parents: BitGeneString[]): GeneWithCost[] {
+        this.generation++;
+        console.log(`--- Producing generation ${this.generation}`);
 
         const evaluatedChildren = new SortedLinkedList<GeneWithCost>({ compareFunc: this.costCompareFunc });
         for (const parent of parents) {
@@ -87,29 +82,60 @@ export class Evolution {
         return evaluatedArray.slice(0, this.descendantsPerGen);
     }
 
+    // /**
+    //  * Start and run the evolution until no better solution is found.
+    //  */
+    // fullEvolution(): GeneWithCost {
+    //     console.log('=== Start Evolution ===');
+
+    //     // --- Start with one parent
+    //     let bestChildren = this.nextGeneration([this.initialParent]);
+    //     let best = bestChildren[0];
+
+    //     // --- Create new generations
+    //     // until all best children are not any better than their parents
+    //     let newBest;
+    //     while (true) {
+    //         bestChildren = this.nextGeneration(bestChildren.map(x => x.gene));
+    //         newBest = bestChildren[0];
+    //         if (newBest.cost >= best.cost) { // no improvements anymore
+    //             break
+    //         }
+    //         best = newBest;
+    //     }
+
+    //     return best;
+    // }
+
     /**
-     * Starts the evolutionary process.
+     * Inits the evolution by generating a random parent.
+     * @returns a randomly generated parent
      */
-    startEvolution(): GeneWithCost {
-        console.log('=== Start Evolution ===');
+    private init(): GeneWithCost[] {
+        const initialBits: Int4 = Array(4).fill(null).map(() => getRandomBit()) as Int4;
+        const initialParentGene = new BitGeneString(initialBits);
+        console.log(`Initial gene 🧬: ${initialParentGene.toString()}`);
 
-        // --- Start with one parent
-        let bestChildren = this.nextGeneration([this.initialParent]);
-        let best = bestChildren[0];
+        this.bestChildren = [{
+            gene: initialParentGene,
+            cost: this.problem.evaluate(initialParentGene.toInt())
+        }];
 
-        // --- Create new generations
-        // until all best children are not any better than their parents
-        let newBest;
-        while (true) {
-            bestChildren = this.nextGeneration(bestChildren.map(x => x.gene));
-            newBest = bestChildren[0];
-            if (newBest.cost >= best.cost) { // no improvements anymore
-                break
-            }
-            best = newBest;
+        this.generation = 0;
+        return this.bestChildren;
+    }
+
+    /**
+     * Performs one step of the evolution.
+     * @returns the new generation (best of parent + children)
+     */
+    next(): GeneWithCost[] {
+        if (this.generation === -1) {
+            return this.init();
+        } else {
+            this.bestChildren = this.nextGeneration(this.bestChildren.map(x => x.gene));
+            return this.bestChildren;
         }
-
-        return best;
     }
 
     private costCompareFunc(a: GeneWithCost, b: GeneWithCost): Compare {

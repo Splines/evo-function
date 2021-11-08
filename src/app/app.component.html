@@ -3,7 +3,17 @@
   <h1>Evo Function App</h1>
   <h3>Probabilistic Hill Climbing</h3>
 
-  <input type="text" placeholder='Function' [ngModel]="fn" (keydown.enter)="onFunctionChange($event)">
+  <input type="text" class="gray-border" placeholder='Function' [ngModel]="fn"
+    (keydown.enter)="onFunctionChange($event)">
+
+  <div id="stpe-buttons">
+    <button class="step-button gray-border" disabled>&#60;</button>
+    <button class="step-button gray-border" (click)="nextStep()">&#62;</button>
+    <button class="step-button gray-border" disabled>&#62;&#62;</button>
+  </div>
+
+  <!-- <textarea id="log" class="gray-border" disabled=true>{{log}}</textarea> -->
+
   <div #plot></div>
 
 </div>
