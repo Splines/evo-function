@@ -2,9 +2,9 @@
 First Ascent vs. Multi-Neighbor Ascent in Hill Climbing
 Goal: show how we get stuck in local optima visually
 
+**Source code for evolutionary algorithm: [here](https://github.com/Splines/evo-function/tree/main/src/evo)**
+
 ![Best genes console output](./images/best-genes-test.jpg)
-
-
 
 ---
 
