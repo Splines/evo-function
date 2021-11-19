@@ -54,13 +54,16 @@ export class AppComponent implements AfterViewInit {
     const evolutionPoints = xEvolutionPoints.map(x => [x, this.evalFn(x)]);
     // console.log(`Evolution points: ${evolutionPoints}`);
 
-    const xValues = linspace(0, 15, 100);
+    const xValues = linspace(0.01, 15, 100);
     const yValues = xValues.map(x => this.evalFn(x));
     const maxY = Math.max(...yValues);
     const minY = Math.min(...yValues);
     const diffY = maxY - minY;
 
-    // Plot
+    const minYView = minY - 0.1 * diffY;
+    const maxYView = maxY + 0.1 * diffY;
+
+    // Redraw plot
     functionPlot({
       width,
       height,
@@ -72,11 +75,11 @@ export class AppComponent implements AfterViewInit {
         domain: [-1, 16]
       },
       yAxis: {
-        domain: [minY - 0.1 * diffY, maxY + 0.1 * diffY]
+        domain: [minYView, maxYView]
       },
 
       data: [{
-        fn: this.fn,
+        fn: this.fn.toString(),
         range: [0, 15],
         sampler: 'builtIn',
         graphType: 'polyline'
